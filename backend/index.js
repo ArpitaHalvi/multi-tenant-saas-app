@@ -10,6 +10,7 @@ import tenantRoutes from "./routes/tenant-router.js";
 import bookingRoutes from "./routes/booking-router.js";
 import customerRoutes from "./routes/customer-router.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -24,6 +25,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(cookieParser());
 
 mongoose
   .connect(URL)

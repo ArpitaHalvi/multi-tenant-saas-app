@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerTenant, loginTenant } from "../controllers/tenant-auth.js";
+import { registerTenant, loginTenant } from "../controllers/tenant-controller.js";
 import validate from "../middlewares/validate-middleware.js";
 import {
   loginSchema,
@@ -8,12 +8,12 @@ import {
 
 const router = Router();
 
-// endpoint: /api/tenant/register
+// Register user
 router
   .route("/register")
   .post(validate(tenantValidationSchema), registerTenant);
 
-// endpoint: /api/tenant/login
+// Login User
 router.route("/login").post(validate(loginSchema), loginTenant);
 
 export default router;

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const tenantValidationSchema = z.object({
-  tenantId: z.string({ required_error: "Tenant ID is required." }),
+  // tenantId: z.string({ required_error: "Tenant ID is required." }),
   name: z
     .string({ required_error: "Name is required." })
     .min(6, { message: "Name must be at least 6 characters." })

@@ -1,4 +1,4 @@
-📘 Project Overview
+<h1>Overview<h1>
 
 This project is a full-stack application designed for tenants/businesses to manage bookings, customers, and staff efficiently. It provides authentication, data listing, and management capabilities with a modern frontend and scalable backend architecture.
 

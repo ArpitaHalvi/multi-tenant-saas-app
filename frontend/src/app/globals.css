@@ -4,6 +4,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-sans: var(--font-inter);
+  --font-sans: var(--font-plex);
+}
+
+body {
+  font-family: var(--font-plex), ui-sans-serif, system-ui;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

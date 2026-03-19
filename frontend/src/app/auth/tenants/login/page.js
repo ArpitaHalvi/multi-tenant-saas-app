@@ -13,6 +13,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { store } from "@/redux/store";
+import { setAuth } from "@/redux/authSlice";
+import { useDispatch } from "react-redux";
+import { useMutation } from "@tanstack/react-query";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -31,63 +44,109 @@ export default function RegisterPage() {
     },
   });
 
-  const handleSubmit = async (values) => {
-    try {
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const loginMutation = useMutation({
+    mutationFn: async (values) => {
       const response = await fetch(`${baseUrl}/api/auth/tenants/login`, {
         method: "POST",
         body: JSON.stringify(values),
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       const data = await response.json();
-      if (response.ok) {
-        alert("Tenant Logged In Successfully!");
-      } else {
+      if (!response.ok) {
         alert(data.message || "Login failed.");
+        throw new Error(data.message || "Login Failed.");
       }
-    } catch (e) {
-      console.error("Error while logging in.");
-    }
-  };
+      return data;
+    },
+    onSuccess: (data) => {
+      dispatch(
+        setAuth({
+          accessToken: data.accessToken,
+          userId: data.userId,
+          tenantId: data.tenantId,
+        }),
+      );
+      form.reset();
+      router.push("/auth/tenants/dashboard");
+    },
+    onError: (error) => {
+      form.reset();
+      alert("Error while login", error.message);
+    },
+  });
 
   return (
-    <div className="w-full h-full flex flex-col justify-center items-center">
-      <h2>Login</h2>
+    <div className="w-full h-screen flex flex-col justify-center items-center">
       <div className="w-1/2 flex flex-col justify-center items-center">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter your email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">login</Button>
-          </form>
-        </Form>
+        <Card className="w-1/2 flex flex-col justify-center items-center">
+          <CardHeader>
+            <CardTitle>Login</CardTitle>
+          </CardHeader>
+          <CardContent className="w-full">
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit((values) =>
+                  loginMutation.mutate(values),
+                )}
+              >
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter your email"
+                          {...field}
+                          className="rounded-sm"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="my-5"></div>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Enter password"
+                          {...field}
+                          className="rounded-sm"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="my-5"></div>
+                <Button type="submit" className="w-full">
+                  {loginMutation.isPending ? "Please wait..." : "Login"}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter>
+            <div>
+              Don&apos;t have an account?
+              <Link href="/auth/tenants/register">
+                <span className="mx-3 text-blue-800 font-semibold">
+                  Sign Up
+                </span>
+              </Link>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

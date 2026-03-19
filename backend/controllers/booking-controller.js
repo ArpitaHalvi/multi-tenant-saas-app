@@ -34,7 +34,10 @@ const createBooking = async (req, res, next) => {
 
 const bookingsOfTenant = async (req, res, next) => {
   try {
-    const bookings = await Booking.find({ tenantId: req.tenantId });
+    const bookings = await Booking.find({ tenantId: req.tenantId }).populate(
+      "customerId",
+      "name email phone",
+    );
     if (bookings.length === 0)
       return res.status(404).json({ message: "No Bookings Found." });
     return res.status(200).json({ bookings });
